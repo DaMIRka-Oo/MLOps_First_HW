@@ -7,6 +7,7 @@ from feature_storage import dataset_storage, model_storage
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import roc_auc_score
 
+import os
 from IPython.display import display
 import pickle
 
@@ -71,6 +72,33 @@ def train():
     message = (f"{model_type} was created with name '{received_data['model_nm']}'. "
                f"AUC on train is {roc_auc_train}. AUC on test is {roc_auc_test}")
     return message
+
+@flask_app.route("/remove_models", methods = ["DELETE"])
+def remove():
+    received_data = request.json
+    assert "remove_list" in received_data, "list of models must be by key 'remove_list'"
+
+    location = 'models/'
+    if type(received_data["remove_list"]) == str:
+        if received_data["remove_list"] == 'All':
+            models = os.listdir(location)
+            print(models)
+            for model in models:
+                if model == 'models':
+                    continue
+                else:
+                    file = f"{model}.pkl"
+                    path = os.path.join(location, file)
+                    os.remove(path)
+        return
+
+    for model in received_data["remove_list"]:
+        file = f"{model}.pkl"
+        path = os.path.join(location, file)
+        os.remove(path)
+
+        return
+
 
 if __name__ == "__main__":
     flask_app.run(debug=True)
