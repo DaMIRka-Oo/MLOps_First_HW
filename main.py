@@ -22,6 +22,9 @@ def show_descrition():
 
     received_data = request.json
 
+    condition = 'data_type' in received_data
+    assert condition, "You must add 'data_type'"
+
     if received_data["data_type"] == "All":
         return jsonify(Datasets=list(datasets),
                        Models=list(models))
