@@ -36,3 +36,76 @@
 Разбиение выборки на *train* и *test* производится с параметрами 
 **test_size=0.33** и **random_state=666**. При желании, эти параметры
 также можно задать в виде пары ключ-значение.
+
+### 3. /retraining
+Переобучает существующую модель.
+
+Все параметры совпадают с параметрами предыдущей функции.
+
+Обязательно задавать имя существующей модели **model_nm**,
+датасет **dataset_nm** и тип модели **model_nm**.
+
+### 4. /remove_models
+Удаляет существующую модель или все имеющиеся модели.
+
+Обязательно задавать ключ **remove_list**.
+
+Чтобы удалить все модели, нужно задать значение *All*.
+
+Что удалить только нужную часть моделей, необходимо перечислить
+их названия в списке
+
+### 5. /show_models
+Показывает список доступных моделей.
+
+Нужно отправить сюда следующий файл json: **{'models_list': 'All'}**
+
+### 6. /predict_class
+Предсказыват класс наблюдения/наблюдений.
+
+Необходимо подать имя модели **"model_nm"** и данные **"data"**
+в виде пар ключ-значение для одного наблюдения, или списка таких пар для несколких наблюдений
+
+Например:
+#### Одно наблюдение
+"data": {"alcohol": 14.23,
+        "malic_acid": 1.71,
+        "ash": 2.43,
+        "alcalinity_of_ash": 15.6,
+        "magnesium": 127.0,
+        "total_phenols": 2.8,
+        "flavanoids": 3.06,
+        "nonflavanoid_phenols": 0.28,
+        "proanthocyanins": 2.29,
+        "color_intensity": 5.64,
+        "hue": 1.04,
+        "od280/od315_of_diluted_wines": 3.92,
+        "proline": 1065.0}
+
+#### Несколько наблюдений
+"data": [{"alcohol": 14.23,
+        "malic_acid": 1.71,
+        "ash": 2.43,
+        "alcalinity_of_ash": 15.6,
+        "magnesium": 127.0,
+        "total_phenols": 2.8,
+        "flavanoids": 3.06,
+        "nonflavanoid_phenols": 0.28,
+        "proanthocyanins": 2.29,
+        "color_intensity": 5.64,
+        "hue": 1.04,
+        "od280/od315_of_diluted_wines": 3.92,
+        "proline": 1065.0},
+    {"alcohol": 14.23,
+        "malic_acid": 1.71,
+        "ash": 2.43,
+        "alcalinity_of_ash": 15.6,
+        "magnesium": 127.0,
+        "total_phenols": 2.8,
+        "flavanoids": 3.06,
+        "nonflavanoid_phenols": 0.28,
+        "proanthocyanins": 2.29,
+        "color_intensity": 5.64,
+        "hue": 1.04,
+        "od280/od315_of_diluted_wines": 3.92,
+        "proline": 1065.0}]
