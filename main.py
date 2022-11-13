@@ -60,8 +60,10 @@ def train():
                                             X, y, test_size = received_data["test_size"],
                                             random_state = received_data["split_random_state"]
                                         )
-
     model.fit(X_train, y_train)
+
+    if not "model_nm" in received_data:
+        received_data["model_nm"] = "model1"
     pickle.dump(model, open(f'models\{received_data["model_nm"]}.pkl', 'wb'))
 
     y_pred_train = model.predict_proba(X_train)[:, 1]
@@ -69,9 +71,7 @@ def train():
     roc_auc_train = roc_auc_score(y_train, y_pred_train)
     roc_auc_test = roc_auc_score(y_test, y_pred_test)
 
-    message = (f"{model_type} was created with name '{received_data['model_nm']}'. "
-               f"AUC on train is {roc_auc_train}. AUC on test is {roc_auc_test}")
-    return message
+    return jsonify({"status": "ok", "roc_auc_train": roc_auc_train, "roc_auc_test": roc_auc_test})
 
 @flask_app.route("/remove_models", methods = ["DELETE"])
 def remove():
@@ -82,22 +82,71 @@ def remove():
     if type(received_data["remove_list"]) == str:
         if received_data["remove_list"] == 'All':
             models = os.listdir(location)
-            print(models)
             for model in models:
                 if model == 'models':
                     continue
                 else:
-                    file = f"{model}.pkl"
+                    file = f"{model}"
                     path = os.path.join(location, file)
                     os.remove(path)
-        return
+        return jsonify({"status": "all models have droped"})
 
     for model in received_data["remove_list"]:
         file = f"{model}.pkl"
         path = os.path.join(location, file)
         os.remove(path)
 
-        return
+    return jsonify({"status": f"{received_data['remove_list']} have droped"})
+
+@flask_app.route("/show_models", methods = ["POST"])
+def show():
+    received_data = request.json
+    assert "models_list" in received_data, "list of models must be by key 'models_list'"
+
+    location = 'models/'
+    if type(received_data["models_list"]) == str:
+        if received_data["models_list"] == 'All':
+            models = os.listdir(location)
+            models.remove('models')
+
+            return jsonify({"Models": models})
+
+@flask_app.route("/predict_class", methods = ["POST"])
+def predict():
+    received_data = request.json
+    assert "model_nm" in received_data, "You must point a model name"
+    assert "data" in received_data, "You must point a data"
+
+    model_nm = received_data["model_nm"]
+    data = received_data["data"]
+
+    if "cutoff" in received_data:
+        cutoff = received_data["cutoff"]
+    else:
+        cutoff = 0.5
+
+    if isinstance(data, dict):
+        data = list(data.values())
+        data = [data]
+        data = np.array(data)
+    if isinstance(data, list):
+        data_list = data.copy()
+        data = []
+        for observ in data_list:
+            observ = list(observ.values())
+            observ = np.array(observ)
+            data.append(observ)
+        data = np.array(data)
+
+    filename = f'models/{model_nm}.pkl'
+    model = pickle.load(open(filename, 'rb'))
+
+    y_pred = model.predict_proba(data)[:, 1]
+    y_pred = y_pred > cutoff
+    y_pred = list(map(int, y_pred))
+
+    return jsonify({"y_pred": y_pred})
+
 
 
 if __name__ == "__main__":

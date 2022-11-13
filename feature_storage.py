@@ -17,7 +17,7 @@ datasets = {
     },
     "load_wine": {
         "data": wine["data"],
-        "target": wine["target"] >= 8
+        "target": wine["target"] >= 1
     },
 }
 
@@ -32,7 +32,8 @@ models = {
             "model": SVC(),
             "random_state": 666,
             "C": 3,
-            "kernel": 'linear'
+            "kernel": 'linear',
+            "probability": True
         },
         "LGBMClassifier": {
             "model": LGBMClassifier(),
