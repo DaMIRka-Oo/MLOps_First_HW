@@ -20,15 +20,13 @@ def show_descrition():
     datasets = datasets_description()
     models = models_description()
 
-    try:
-        received_data = request.json
-    except:
+    received_data = request.json
+
+    if received_data["data_type"] == "All":
         return jsonify(Datasets=list(datasets),
-                        Models=list(models))
-
-    if received_data["data_type"] == "Datasets":
+                       Models=list(models))
+    elif received_data["data_type"] == "Datasets":
         return jsonify(datasets[received_data["dataset"]])
-
     elif received_data["data_type"] == "Models":
         return jsonify(models[received_data["model"]])
 
@@ -51,27 +49,81 @@ def train():
             params[param] = received_data[param]
     model.set_params(**params)
 
-    if not "test_size" in received_data:
-        received_data["test_size"] = 0.33
-    if not "split_random_state" in received_data:
-        received_data["split_random_state"] = 666
+    test_size, split_random_state = 0.33, 666
+    if "test_size" in received_data:
+        test_size = received_data["test_size"]
+    if "split_random_state" in received_data:
+        split_random_state = received_data["split_random_state"]
+
+    location = 'models/'
+    models = os.listdir(location)
+    if not "model_nm" in received_data:
+        i = 1
+        while True:
+            if f"model{i}.pkl" in models:
+                i += 1
+                continue
+            break
+        model_nm = f"model{i}"
+    else:
+        model_nm = received_data["model_nm"]
+        assert f"{model_nm}.pkl" not in models, f"Model {model_nm} already exist!"
 
     X_train, X_test, y_train, y_test = train_test_split(
-                                            X, y, test_size = received_data["test_size"],
-                                            random_state = received_data["split_random_state"]
+                                            X, y, test_size = test_size,
+                                            random_state = split_random_state
                                         )
     model.fit(X_train, y_train)
 
-    if not "model_nm" in received_data:
-        received_data["model_nm"] = "model1"
-    pickle.dump(model, open(f'models\{received_data["model_nm"]}.pkl', 'wb'))
+    pickle.dump(model, open(f'models\{model_nm}.pkl', 'wb'))
 
-    y_pred_train = model.predict_proba(X_train)[:, 1]
-    y_pred_test = model.predict_proba(X_test)[:, 1]
-    roc_auc_train = roc_auc_score(y_train, y_pred_train)
-    roc_auc_test = roc_auc_score(y_test, y_pred_test)
+    return jsonify({"status": "ok"})
 
-    return jsonify({"status": "ok", "roc_auc_train": roc_auc_train, "roc_auc_test": roc_auc_test})
+@flask_app.route("/retraining", methods = ["POST"])
+def retrain():
+    received_data = request.json
+
+    condition1 = 'model_nm' in received_data
+    assert condition1, "You must add 'model_nm'"
+
+    model_nm = received_data["model_nm"]
+
+    location = 'models/'
+    models = os.listdir(location)
+
+    condition2 = f"{model_nm}.pkl" in models
+    assert condition2, "You must point off existing 'model_nm'"
+
+    condition3 = 'dataset_nm' in received_data and 'model_type' in received_data
+    assert condition3, "You must add 'dataset_nm' and 'model_type'"
+
+    dataset_nm = received_data["dataset_nm"]
+    model_type = received_data["model_type"]
+
+    X, y = dataset_storage(dataset_nm)
+    model, params = model_storage(model_type)
+
+    model_descrip = models_description()[received_data["model_type"]]
+    for param in model_descrip:
+        if param in received_data:
+            params[param] = received_data[param]
+    model.set_params(**params)
+
+    test_size, split_random_state = 0.33, 666
+    if "test_size" in received_data:
+        test_size = received_data["test_size"]
+    if "split_random_state" in received_data:
+        split_random_state = received_data["split_random_state"]
+
+    X_train, X_test, y_train, y_test = train_test_split(
+                                            X, y, test_size = test_size,
+                                            random_state = split_random_state
+                                        )
+    model.fit(X_train, y_train)
+
+    pickle.dump(model, open(f'models\{model_nm}.pkl', 'wb'))
+
+    return jsonify({"status": "ok"})
 
 @flask_app.route("/remove_models", methods = ["DELETE"])
 def remove():
@@ -110,15 +162,20 @@ def show():
             models.remove('models')
 
             return jsonify({"Models": models})
+    return jsonify({"Models": ""})
 
 @flask_app.route("/predict_class", methods = ["POST"])
 def predict():
     received_data = request.json
-    assert "model_nm" in received_data, "You must point a model name"
+    assert "model_nm" in received_data, "You must add 'model_nm'"
     assert "data" in received_data, "You must point a data"
 
     model_nm = received_data["model_nm"]
     data = received_data["data"]
+
+    location = 'models/'
+    models = os.listdir(location)
+    assert f"{model_nm}.pkl" in models, "You must point off existing 'model_nm'"
 
     if "cutoff" in received_data:
         cutoff = received_data["cutoff"]
@@ -146,8 +203,6 @@ def predict():
     y_pred = list(map(int, y_pred))
 
     return jsonify({"y_pred": y_pred})
-
-
 
 if __name__ == "__main__":
     flask_app.run(debug=True)
