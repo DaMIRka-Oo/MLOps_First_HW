@@ -15,7 +15,7 @@ def predict():
     model_nm = received_data["model_nm"]
     data = received_data["data"]
 
-    location = 'models/'
+    location = './models/'
     models = os.listdir(location)
     assert f"{model_nm}.pkl" in models, "You must point off existing 'model_nm'"
 
@@ -37,7 +37,7 @@ def predict():
             data.append(observ)
         data = np.array(data)
 
-    filename = f'models/{model_nm}.pkl'
+    filename = f'./models/{model_nm}.pkl'
     model = pickle.load(open(filename, 'rb'))
 
     y_pred = model.predict_proba(data)[:, 1]

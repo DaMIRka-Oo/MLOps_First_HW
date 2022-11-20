@@ -1,8 +1,8 @@
 from flask import Flask
-from show import show_page
-from remove import remove_page
-from predict import predict_page
-from train_model import train_page
+from modules.show import show_page
+from modules.remove import remove_page
+from modules.predict import predict_page
+from modules.train_model import train_page
 
 flask_app = Flask(__name__)
 

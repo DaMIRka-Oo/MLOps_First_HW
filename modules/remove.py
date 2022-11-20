@@ -8,7 +8,7 @@ def remove():
     received_data = request.json
     assert "remove_list" in received_data, "list of models must be by key 'remove_list'"
 
-    location = 'models/'
+    location = './models/'
     if type(received_data["remove_list"]) == str:
         if received_data["remove_list"] == 'All':
             models = os.listdir(location)

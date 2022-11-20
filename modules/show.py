@@ -28,7 +28,7 @@ def show_descrition():
 
 @show_page.route("/show_models", methods = ["GET"])
 def show():
-    location = 'models/'
+    location = './models/'
 
     models = os.listdir(location)
     models.remove('models')

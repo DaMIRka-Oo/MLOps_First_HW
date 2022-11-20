@@ -34,7 +34,7 @@ def train():
     if "split_random_state" in received_data:
         split_random_state = received_data["split_random_state"]
 
-    location = 'models/'
+    location = './models/'
     models = os.listdir(location)
     if not "model_nm" in received_data:
         i = 1
@@ -54,7 +54,7 @@ def train():
                                         )
     model.fit(data_train, target_train)
 
-    pickle.dump(model, open(f'models\{model_nm}.pkl', 'wb'))
+    pickle.dump(model, open(f'.\models\{model_nm}.pkl', 'wb'))
 
     return Response(status=201)
 
@@ -67,7 +67,7 @@ def retrain():
 
     model_nm = received_data["model_nm"]
 
-    location = 'models/'
+    location = './models/'
     models = os.listdir(location)
 
     condition2 = f"{model_nm}.pkl" in models
@@ -100,6 +100,6 @@ def retrain():
                                         )
     model.fit(data_train, target_train)
 
-    pickle.dump(model, open(f'models\{model_nm}.pkl', 'wb'))
+    pickle.dump(model, open(f'.\models\{model_nm}.pkl', 'wb'))
 
     return Response(status=200)
