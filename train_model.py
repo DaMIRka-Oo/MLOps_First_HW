@@ -1,4 +1,4 @@
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, Response, request
 
 from feature_description import models_description
 from feature_storage import dataset_storage, model_storage
@@ -19,7 +19,7 @@ def train():
     dataset_nm = received_data["dataset_nm"]
     model_type = received_data["model_type"]
 
-    X, y = dataset_storage(dataset_nm)
+    data, target = dataset_storage(dataset_nm)
     model, params = model_storage(model_type)
 
     model_descrip = models_description()[received_data["model_type"]]
@@ -48,15 +48,15 @@ def train():
         model_nm = received_data["model_nm"]
         assert f"{model_nm}.pkl" not in models, f"Model {model_nm} already exist!"
 
-    X_train, X_test, y_train, y_test = train_test_split(
-                                            X, y, test_size = test_size,
+    data_train, _, target_train, _ = train_test_split(
+                                            data, target, test_size = test_size,
                                             random_state = split_random_state
                                         )
-    model.fit(X_train, y_train)
+    model.fit(data_train, target_train)
 
     pickle.dump(model, open(f'models\{model_nm}.pkl', 'wb'))
 
-    return jsonify({"status": "ok"})
+    return Response(status=201)
 
 @train_page.route("/retraining", methods = ["POST"])
 def retrain():
@@ -79,7 +79,7 @@ def retrain():
     dataset_nm = received_data["dataset_nm"]
     model_type = received_data["model_type"]
 
-    X, y = dataset_storage(dataset_nm)
+    data, target = dataset_storage(dataset_nm)
     model, params = model_storage(model_type)
 
     model_descrip = models_description()[received_data["model_type"]]
@@ -94,12 +94,12 @@ def retrain():
     if "split_random_state" in received_data:
         split_random_state = received_data["split_random_state"]
 
-    X_train, X_test, y_train, y_test = train_test_split(
-                                            X, y, test_size = test_size,
+    data_train, _, target_train, _ = train_test_split(
+                                            data, target, test_size = test_size,
                                             random_state = split_random_state
                                         )
-    model.fit(X_train, y_train)
+    model.fit(data_train, target_train)
 
     pickle.dump(model, open(f'models\{model_nm}.pkl', 'wb'))
 
-    return jsonify({"status": "ok"})
+    return Response(status=200)

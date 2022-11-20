@@ -1,4 +1,4 @@
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, Response, request, jsonify
 import os
 
 remove_page = Blueprint('remove_page', __name__)
@@ -26,4 +26,4 @@ def remove():
         path = os.path.join(location, file)
         os.remove(path)
 
-    return jsonify({"status": f"{received_data['remove_list']} have droped"})
+    return Response(status=200)
