@@ -44,10 +44,13 @@ models = {
         },
     }
 
+
 def dataset_storage(dataset_nm: str) -> Tuple[pd.DataFrame, pd.Series]:
     return datasets[dataset_nm]["data"], datasets[dataset_nm]["target"]
 
-def model_storage(model_type: str) -> Tuple[Union[LogisticRegression, SVC, LGBMClassifier], dict]:
+
+def model_storage(model_type: str) -> \
+        Tuple[Union[LogisticRegression, SVC, LGBMClassifier], dict]:
     model_data = models[model_type].copy()
     model = model_data["model"]
     del model_data["model"]

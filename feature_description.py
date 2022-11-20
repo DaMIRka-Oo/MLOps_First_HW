@@ -1,8 +1,5 @@
 from sklearn.datasets import load_iris, load_wine
-from sklearn.linear_model import LogisticRegression
-from sklearn.svm import SVC
 
-from lightgbm import LGBMClassifier
 
 def datasets_description():
     iris, wine = load_iris(), load_wine()
@@ -21,6 +18,7 @@ def datasets_description():
     }
 
     return datasets
+
 
 def models_description():
     models = {

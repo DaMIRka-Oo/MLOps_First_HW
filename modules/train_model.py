@@ -9,7 +9,8 @@ import os
 
 train_page = Blueprint('train_page', __name__)
 
-@train_page.route("/train_model", methods = ["PUT"])
+
+@train_page.route("/train_model", methods=["PUT"])
 def train():
     received_data = request.json
 
@@ -36,7 +37,7 @@ def train():
 
     location = './models/'
     models = os.listdir(location)
-    if not "model_nm" in received_data:
+    if "model_nm" not in received_data:
         i = 1
         while True:
             if f"model{i}.pkl" in models:
@@ -49,16 +50,17 @@ def train():
         assert f"{model_nm}.pkl" not in models, f"Model {model_nm} already exist!"
 
     data_train, _, target_train, _ = train_test_split(
-                                            data, target, test_size = test_size,
-                                            random_state = split_random_state
+                                            data, target, test_size=test_size,
+                                            random_state=split_random_state
                                         )
     model.fit(data_train, target_train)
 
-    pickle.dump(model, open(f'.\models\{model_nm}.pkl', 'wb'))
+    pickle.dump(model, open(f'./models/{model_nm}.pkl', 'wb'))
 
     return Response(status=201)
 
-@train_page.route("/retraining", methods = ["POST"])
+
+@train_page.route("/retraining", methods=["POST"])
 def retrain():
     received_data = request.json
 
@@ -95,11 +97,11 @@ def retrain():
         split_random_state = received_data["split_random_state"]
 
     data_train, _, target_train, _ = train_test_split(
-                                            data, target, test_size = test_size,
-                                            random_state = split_random_state
+                                            data, target, test_size=test_size,
+                                            random_state=split_random_state
                                         )
     model.fit(data_train, target_train)
 
-    pickle.dump(model, open(f'.\models\{model_nm}.pkl', 'wb'))
+    pickle.dump(model, open(f'./models/{model_nm}.pkl', 'wb'))
 
     return Response(status=200)

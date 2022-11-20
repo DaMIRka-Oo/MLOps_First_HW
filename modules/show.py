@@ -5,7 +5,8 @@ import os
 
 show_page = Blueprint('show_page', __name__)
 
-@show_page.route("/feature_description", methods = ["GET", "POST"])
+
+@show_page.route("/feature_description", methods=["GET", "POST"])
 def show_descrition():
     datasets = datasets_description()
     models = models_description()
@@ -26,7 +27,7 @@ def show_descrition():
             return jsonify(models[received_data["model"]])
 
 
-@show_page.route("/show_models", methods = ["GET"])
+@show_page.route("/show_models", methods=["GET"])
 def show():
     location = './models/'
 

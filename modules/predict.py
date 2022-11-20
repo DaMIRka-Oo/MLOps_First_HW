@@ -6,7 +6,8 @@ import os
 
 predict_page = Blueprint('predict_page', __name__)
 
-@predict_page.route("/predict_class", methods = ["POST"])
+
+@predict_page.route("/predict_class", methods=["POST"])
 def predict():
     received_data = request.json
     assert "model_nm" in received_data, "You must add 'model_nm'"
