@@ -1,8 +1,10 @@
 from flask import Blueprint, request, jsonify
+#from flask_restx import Api, Namespace
 from feature_description import datasets_description, models_description
 
 import os
 
+# show_page = Namespace('show_page', description='Show general information')
 show_page = Blueprint('show_page', __name__)
 
 
