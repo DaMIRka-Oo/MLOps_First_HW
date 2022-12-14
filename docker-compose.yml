@@ -9,4 +9,4 @@ services:
     volumes:
       - .:/mlops_suleev
     ports:
-      - "5000:5000"
+      - "0.0.0.0:5000:5000"
