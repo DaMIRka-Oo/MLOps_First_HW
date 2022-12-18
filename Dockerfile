@@ -12,5 +12,3 @@ COPY . /mlops_suleev
 WORKDIR /mlops_suleev
 
 EXPOSE 5000
-
-CMD ["main.py"]
